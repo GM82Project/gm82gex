@@ -147,8 +147,10 @@ def generate_swap_table(seed):
 
 
 def build_gex(ged_path: str) -> bytes:
+    old_dir = os.getcwd()
     if os.path.dirname(ged_path) != "":
         os.chdir(os.path.dirname(ged_path))
+        ged_path = os.path.basename(ged_path)
     # load ged
     if ged_path.endswith(".ged"):
         with open(ged_path, "rb") as f:
@@ -179,6 +181,8 @@ def build_gex(ged_path: str) -> bytes:
         with out.getbuffer() as view:
             for i in range(13, len(view)):
                 view[i] = table[0][view[i]]
+        # cleanup
+        os.chdir(old_dir)
         return out.getvalue()
 
 
@@ -218,7 +222,7 @@ def main():
     gex = build_gex(sys.argv[1])
     with open(sys.argv[1][:-1] + "x", "wb") as f:
         f.write(gex)
-    if "--noinstall" not in sys.argv[1]:
+    if "--noinstall" not in sys.argv:
         extensions_path = os.path.join(
             os.path.expandvars("%LOCALAPPDATA%"), "GameMaker8.2", "extensions/"
         )
