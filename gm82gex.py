@@ -199,7 +199,7 @@ def install_gex(install_path: str, gex: bytes):
         with open(os.path.join(install_path, name + ".ged"), "wb") as f:
             f.write(ged.read(ged_len))
         if help_file:
-            help_len = int.from_bytes(f.read(4), byteorder="little")
+            help_len = int.from_bytes(ged.read(4), byteorder="little")
             with open(os.path.join(install_path, help_file), "wb") as f:
                 f.write(zlib.decompress(ged.read(help_len)))
         with io.BytesIO() as dat:
