@@ -224,7 +224,7 @@ def main():
         f.write(gex)
     if "--noinstall" not in sys.argv:
         extensions_path = os.path.join(
-            os.path.expandvars("%APPDATA%"), "GameMaker8.2", "extensions"
+            os.path.expandvars("%LOCALAPPDATA%"), "GameMaker8.2", "extensions"
         )
         install_gex(extensions_path, gex)
 
