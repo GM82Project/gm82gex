@@ -223,9 +223,11 @@ def main():
     with open(sys.argv[1][:-1] + "x", "wb") as f:
         f.write(gex)
     if "--noinstall" not in sys.argv:
-        extensions_path = os.path.join(
-            os.path.expandvars("%LOCALAPPDATA%"), "GameMaker8.2", "extensions"
-        )
+        # import down here to not break linux too hard
+        import winreg
+        key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, r"SOFTWARE\Game Maker\Version 8.2\Preferences")
+        extensions_path = os.path.join(winreg.QueryValueEx(key, "Directory")[0], "extensions")
+        winreg.CloseKey(key)
         install_gex(extensions_path, gex)
 
 
