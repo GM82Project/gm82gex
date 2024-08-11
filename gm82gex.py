@@ -218,17 +218,25 @@ def install_gex(install_path: str, gex: bytes):
                 f.write(dat.getvalue())
 
 
+def get_extensions_path():
+    # import down here to not break linux too hard
+    if os.name == "nt":
+        import winreg
+        key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, r"SOFTWARE\Game Maker\Version 8.2\Preferences")
+        directory = winreg.QueryValueEx(key, "Directory")[0]
+        winreg.CloseKey(key)
+    else:
+        with open(os.path.expanduser("~/.wine/user.reg")) as f:
+            key = re.search(r'\[Software\\\\Game Maker\\\\Version 8\.2\\\\Preferences\][^[]+', f.read()).group(0)
+            directory = re.search(r'"Directory"="(.+)"', key).group(1).replace('C:', os.path.expanduser('~/.wine/drive_c')).replace('\\\\', '/')
+    return os.path.join(directory, "extensions")
+
 def main():
     gex = build_gex(sys.argv[1])
     with open(sys.argv[1][:-1] + "x", "wb") as f:
         f.write(gex)
     if "--noinstall" not in sys.argv:
-        # import down here to not break linux too hard
-        import winreg
-        key = winreg.OpenKeyEx(winreg.HKEY_CURRENT_USER, r"SOFTWARE\Game Maker\Version 8.2\Preferences")
-        extensions_path = os.path.join(winreg.QueryValueEx(key, "Directory")[0], "extensions")
-        winreg.CloseKey(key)
-        install_gex(extensions_path, gex)
+        install_gex(get_extensions_path(), gex)
 
 
 if __name__ == "__main__":
