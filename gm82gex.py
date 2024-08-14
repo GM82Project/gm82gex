@@ -236,7 +236,7 @@ def main():
     gex = build_gex(sys.argv[1])
     with open(sys.argv[1][:-1] + "x", "wb") as f:
         f.write(gex)
-    if "--noinstall" not in sys.argv:
+    if "--noinstall" not in sys.argv and os.getenv("GM82GEX_NOINSTALL") is None:
         install_gex(get_extensions_path(), gex)
 
 
