@@ -32,6 +32,8 @@ def generate_ged(gej):
             write_string(d)
         write_int(len(gej["files"]))
         for fi in gej["files"]:
+            if not 1 <= fi["kind"] <= 4:
+                raise RuntimError(f"invalid kind {fi["kind"]} for file {fi["filename"]}")
             write_int(700)
             write_string(fi["filename"])
             write_string(fi["origname"])
@@ -40,6 +42,19 @@ def generate_ged(gej):
             write_string(fi["final"])
             write_int(len(fi["functions"]))
             for fu in fi["functions"]:
+                if fu["calltype"] not in (2, 11, 12):
+                    raise RuntimeError(f"invalid calltype {fu["calltype"]} in function {fu["name"]} in file {fi["filename"]}")
+                if fu["returntype"] not in (1, 2):
+                    raise RuntimeError(f"invalid returntype {fu["returntype"]} in function {fu["name"]} in file {fi["filename"]}")
+                if fu["argtypes"]:
+                    if len(fu["argtypes"]) > 16:
+                        raise RuntimeError(f"too many arguments ({len(fu["argtypes"])}, max is 16) in function {fu["name"]} in file {fi["filename"]}")
+                    if len(fu["argtypes"]) <= 4 or fi["kind"] != 1:
+                        for arg in fu["argtypes"]:
+                            if arg not in (1, 2):
+                                raise RuntimeError(f"invalid argtype {arg} in function {fu["name"]} in file {fi["filename"]}")
+                    elif not all(a == 2 for a in fu["argtypes"]):
+                        raise RuntimeError(f"too many args for a non-real arg in function {fu["name"]} in file {fi["filename"]}")
                 write_int(700)
                 write_string(fu["name"])
                 write_string(fu["extname"])
