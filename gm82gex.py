@@ -33,7 +33,7 @@ def generate_ged(gej):
         write_int(len(gej["files"]))
         for fi in gej["files"]:
             if not 1 <= fi["kind"] <= 4:
-                raise RuntimError(f"invalid kind {fi["kind"]} for file {fi["filename"]}")
+                raise RuntimeError(f"invalid kind {fi["kind"]} for file {fi["filename"]}")
             write_int(700)
             write_string(fi["filename"])
             write_string(fi["origname"])
