@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import io
 import json
 import os
@@ -130,7 +132,7 @@ def skip_constant(f):
 
 
 def copy_file(f, path):
-    with open(path, "rb") as g:
+    with open(os.path.join(*path.split('\\')), "rb") as g:
         dat = zlib.compress(g.read())
     f.write(len(dat).to_bytes(4, "little"))
     f.write(dat)
