@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
+import argparse
 import io
 import json
 import os
 import re
 import typing
-import sys
 import zlib
 
 
@@ -57,7 +57,7 @@ def generate_ged(gej):
                                 raise RuntimeError(f"invalid argtype {arg} in function {fu['name']} in file {fi['filename']}")
                     elif not all(a == 2 for a in fu["argtypes"]):
                         raise RuntimeError(f"too many args for a non-real arg in function {fu['name']} in file {fi['filename']}")
-                        
+
                 write_int(700)
                 write_string(fu["name"])
                 write_string(fu["extname"])
@@ -171,7 +171,7 @@ def build_gex(ged_path: str) -> bytes:
         os.chdir(os.path.dirname(ged_path))
         ged_path = os.path.basename(ged_path)
     # load ged
-    if ged_path.endswith(".ged"):
+    if ged_path.lower().endswith(".ged"):
         with open(ged_path, "rb") as f:
             ged = bytearray(f.read())
         with io.BytesIO(ged) as f:
@@ -253,11 +253,22 @@ def get_extensions_path():
     return os.path.join(directory, "extensions")
 
 def main():
-    gex = build_gex(sys.argv[1])
-    with open(sys.argv[1][:-1] + "x", "wb") as f:
-        f.write(gex)
-    if "--noinstall" not in sys.argv and os.getenv("GM82GEX_NOINSTALL") is None:
-        install_gex(get_extensions_path(), gex)
+    parser = argparse.ArgumentParser(description="build and/or install gex files")
+    parser.add_argument("file", help="a ged or gej to build, or a gex to install")
+    parser.add_argument("--noinstall", action="store_true", help="build gex without installing")
+    parser.add_argument("--extensions_path", help="path to install extension install")
+    args = parser.parse_args()
+
+    filename = args.file
+    if not filename.lower().endswith(".gex"):
+        gex = build_gex(filename)
+        with open(filename[:-1] + "x", "wb") as f:
+            f.write(gex)
+    else:
+        with open(filename, "rb") as f:
+            gex = f.read()
+    if not args.noinstall and os.getenv("GM82GEX_NOINSTALL") is None:
+        install_gex(args.extensions_path or get_extensions_path(), gex)
 
 
 if __name__ == "__main__":
